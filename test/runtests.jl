@@ -71,6 +71,8 @@ mkdir(s,remote_dirname)
 @test isfile(s,remote_dirname) == false
 @test isfile(s,remote_fname)
 
+@test length(readdir(s,remote_dirname)) == 1
+
 rm(s,remote_dirname)
 rm(s,remote_fname)
 
