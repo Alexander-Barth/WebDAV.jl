@@ -16,6 +16,7 @@ username,password,url =
 userinfo = username * ":" * password;
 
 
+@testset "WebDAV" begin
 
 fname = tempname()
 content = randstring(10)
@@ -23,7 +24,8 @@ open(fname,"w") do f
     write(f,content)
 end
 
-remote_fname = "test_webdev_$(randstring(10)).txt"
+remote_fname = "test_webdav_$(randstring(10)).txt"
+remote_dirname = "test_webdav_dir_$(randstring(10))"
 
 local_fname = tempname()
 
@@ -56,15 +58,20 @@ f = open(s, remote_fname,"r")
 @test read(f,String) == "blabla"
 
 
-if isdir(s,"test-dir-julia")
-    rm(s,"test-dir-julia")
+if isdir(s,remote_dirname)
+    rm(s,remote_dirname)
 end
-@test isdir(s,"test-dir-julia") == false
+@test isdir(s,remote_dirname) == false
 
-mkdir(s,"test-dir-julia")
+mkdir(s,remote_dirname)
 
-@test isdir(s,"test-dir-julia")
+@test isdir(s,remote_dirname)
 @test isdir(s,remote_fname) == false
 
-@test isfile(s,"test-dir-julia") == false
+@test isfile(s,remote_dirname) == false
 @test isfile(s,remote_fname)
+
+rm(s,remote_dirname)
+rm(s,remote_fname)
+
+end
