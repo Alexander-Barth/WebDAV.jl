@@ -25,8 +25,9 @@ function Server(url::AbstractString,username::AbstractString,password::AbstractS
     return Server(url,headers)
 end
 
-function upload(s::Server,stream::IO,remotepath::AbstractString)
-    r = HTTP.request("PUT", s.url * "/" * remotepath,s.headers, stream);
+function upload(s::Server,stream::IOStream,remotepath::AbstractString)
+    remotepath_escaped = HTTP.escapeuri(remotepath)
+    r = HTTP.request("PUT", s.url * "/" * remotepath_escaped,s.headers, stream);
 end
 
 function upload(s::Server,localpath::AbstractString,remotepath::AbstractString)
@@ -57,9 +58,10 @@ end
 function Base.open(s::Server,remotepath::AbstractString,
                    mode::AbstractString = "r")
 
+    remotepath_escaped = HTTP.escapeuri(remotepath)
     if mode == "r"
         io = Base.BufferStream()
-        r = HTTP.request("GET", s.url * "/" * remotepath,s.headers,response_stream = io)
+        r = HTTP.request("GET", s.url * "/" * remotepath_escaped,s.headers,response_stream = io)
         return io
     else
         error("unsupported mode $(mode)")
@@ -71,12 +73,13 @@ end
 function Base.open(f::Function,s::Server,remotepath::AbstractString,
                    mode::AbstractString = "r")
 
+    remotepath_escaped = HTTP.escapeuri(remotepath)
     if mode == "r"
-        r = HTTP.open("GET", s.url * "/" * remotepath,s.headers) do io
+        r = HTTP.open("GET", s.url * "/" * remotepath_escaped,s.headers) do io
             f(io)
         end
     elseif mode == "w"
-        r = HTTP.open("PUT", s.url * "/" * remotepath,s.headers) do io
+        r = HTTP.open("PUT", s.url * "/" * remotepath_escaped,s.headers) do io
             f(io)
         end
     else
@@ -87,7 +90,7 @@ function Base.open(f::Function,s::Server,remotepath::AbstractString,
 end
 
 function properties(s,dir)
-    r = HTTP.request("PROPFIND", s.url * "/" * dir, s.headers; status_exception = false);
+    r = HTTP.request("PROPFIND", s.url * "/" * HTTP.escapeuri(dir), s.headers; status_exception = false);
 
     body = String(r.body)
     if r.status == 404
@@ -116,16 +119,21 @@ function Base.Filesystem.readdir(s,dir::AbstractString=".")
         end
     end
 
-    return list
+    return HTTP.unescapeuri.(list)
 end
 
 function Base.Filesystem.mkdir(s,dir::AbstractString)
-    r = HTTP.request("MKCOL", s.url * "/" * dir, s.headers);
+    r = HTTP.request("MKCOL", s.url * "/" * HTTP.escapeuri(dir), s.headers);
     return nothing
 end
 
+"""
+    rm(server::WebDAV.Server,path)
+
+Removes the `path` on the WebDAV `server`.
+"""
 function Base.Filesystem.rm(s,dir::AbstractString)
-    r = HTTP.request("DELETE", s.url * "/" * dir, s.headers);
+    r = HTTP.request("DELETE", s.url * "/" * HTTP.escapeuri(dir), s.headers);
     return nothing
 end
 

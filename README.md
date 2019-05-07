@@ -17,6 +17,9 @@ Pkg.add("WebDAV")
 
 ## Usage
 
+
+The functions `download` and `upload` are used to interact with a WebDAV server.
+
 ```julia
 username = "user"
 password = "abc123"
@@ -34,4 +37,15 @@ r = upload(s, fname, remote_fname)
 # download file form a WebDAV server
 fname2 = "local_file2.txt"
 download(s, remote_fname, fname2)
+
+# list all files and directory under a directory
+file_list = readdir(s,"/")
+
+# checks if a file "foo.txt" exists
+isfile(s,"foo.txt")
+
+# checks if a directory "dir" exists
+isdir(s,"dir")
+
+
 ```
