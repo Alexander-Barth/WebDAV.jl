@@ -80,4 +80,6 @@ mkdir(s,remote_dirname)
 rm(s,remote_dirname)
 rm(s,remote_fname)
 
+#broken on nginx
+#@test isfile(s,"does_not_exists")
 end
