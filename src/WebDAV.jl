@@ -14,6 +14,9 @@ struct Server
     headers
 end
 
+escape_no_slash(url) = join(HTTP.escapeuri.(split(url,'/')),'/')
+
+
 """
     server = WebDAV.Server(url,username,password)
 
@@ -26,7 +29,7 @@ function Server(url::AbstractString,username::AbstractString,password::AbstractS
 end
 
 function upload(s::Server,stream::IOStream,remotepath::AbstractString)
-    remotepath_escaped = HTTP.escapeuri(remotepath)
+    remotepath_escaped = escape_no_slash(remotepath)
     r = HTTP.request("PUT", s.url * "/" * remotepath_escaped,s.headers, stream);
 end
 
@@ -58,7 +61,7 @@ end
 function Base.open(s::Server,remotepath::AbstractString,
                    mode::AbstractString = "r")
 
-    remotepath_escaped = HTTP.escapeuri(remotepath)
+    remotepath_escaped = escape_no_slash(remotepath)
     if mode == "r"
         io = Base.BufferStream()
         r = HTTP.request("GET", s.url * "/" * remotepath_escaped,s.headers,response_stream = io)
@@ -73,13 +76,14 @@ end
 function Base.open(f::Function,s::Server,remotepath::AbstractString,
                    mode::AbstractString = "r")
 
-    remotepath_escaped = HTTP.escapeuri(remotepath)
+    remotepath_escaped = s.url * "/" * escape_no_slash(remotepath)
+    @debug "remotepath_escaped: $remotepath_escaped"
     if mode == "r"
-        r = HTTP.open("GET", s.url * "/" * remotepath_escaped,s.headers) do io
+        r = HTTP.open("GET", remotepath_escaped,s.headers) do io
             f(io)
         end
     elseif mode == "w"
-        r = HTTP.open("PUT", s.url * "/" * remotepath_escaped,s.headers) do io
+        r = HTTP.open("PUT", remotepath_escaped,s.headers) do io
             f(io)
         end
     else
@@ -90,7 +94,7 @@ function Base.open(f::Function,s::Server,remotepath::AbstractString,
 end
 
 function properties(s,dir)
-    r = HTTP.request("PROPFIND", s.url * "/" * HTTP.escapeuri(dir), s.headers; status_exception = false);
+    r = HTTP.request("PROPFIND", s.url * "/" * escape_no_slash(dir), s.headers; status_exception = false);
 
     body = String(r.body)
     if r.status == 404
@@ -123,7 +127,7 @@ function Base.Filesystem.readdir(s,dir::AbstractString=".")
 end
 
 function Base.Filesystem.mkdir(s,dir::AbstractString)
-    r = HTTP.request("MKCOL", s.url * "/" * HTTP.escapeuri(dir), s.headers);
+    r = HTTP.request("MKCOL", s.url * "/" * escape_no_slash(dir), s.headers);
     return nothing
 end
 
@@ -133,7 +137,7 @@ end
 Removes the `path` on the WebDAV `server`.
 """
 function Base.Filesystem.rm(s,dir::AbstractString)
-    r = HTTP.request("DELETE", s.url * "/" * HTTP.escapeuri(dir), s.headers);
+    r = HTTP.request("DELETE", s.url * "/" * escape_no_slash(dir), s.headers);
     return nothing
 end
 
