@@ -97,6 +97,7 @@ function properties(s,dir)
     r = HTTP.request("PROPFIND", s.url * "/" * escape_no_slash(dir), s.headers; status_exception = false);
 
     body = String(r.body)
+    @debug "properties: $body"
     if r.status == 404
         return nothing,r.status
     else
@@ -114,7 +115,7 @@ function Base.Filesystem.readdir(s,dir::AbstractString=".")
     response = findall("d:response",root(doc),namespace)
     list = Vector{String}(undef,length(response))
     for i = 1:length(response)
-        url = nodecontent(findfirst("d:href",response[i]))
+        url = nodecontent(findfirst("d:href",response[i],namespace))
 
         if startswith(url,path)
             list[i] = url[length(path)+1:end]
@@ -127,7 +128,12 @@ function Base.Filesystem.readdir(s,dir::AbstractString=".")
 end
 
 function Base.Filesystem.mkdir(s,dir::AbstractString)
-    r = HTTP.request("MKCOL", s.url * "/" * escape_no_slash(dir), s.headers);
+    escaped_dir = escape_no_slash(dir)
+    if !endswith(dir,"/")
+        escaped_dir = escaped_dir * "/"
+    end
+
+    r = HTTP.request("MKCOL", s.url * "/" * escaped_dir, s.headers);
     return nothing
 end
 
@@ -137,7 +143,12 @@ end
 Removes the `path` on the WebDAV `server`.
 """
 function Base.Filesystem.rm(s,dir::AbstractString)
-    r = HTTP.request("DELETE", s.url * "/" * escape_no_slash(dir), s.headers);
+    escaped_dir = escape_no_slash(dir)
+    if isdir(s,dir) && !endswith(dir,"/")
+        escaped_dir = escaped_dir * "/"
+    end
+
+    r = HTTP.request("DELETE", s.url * "/" * escaped_dir, s.headers);
     return nothing
 end
 

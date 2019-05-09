@@ -5,13 +5,17 @@ using Base64
 using WebDAV
 
 
-username,password,url =
-    if haskey(ENV,"WEBDAV_PASSWORD")
-        ENV["WEBDAV_USERNAME"],ENV["WEBDAV_PASSWORD"],ENV["WEBDAV_URL"]
-    else
-        split(read(expanduser("~/.test_webdav"),String))
-    end
+# username,password,url =
+#     if haskey(ENV,"WEBDAV_PASSWORD")
+#         ENV["WEBDAV_USERNAME"],ENV["WEBDAV_PASSWORD"],ENV["WEBDAV_URL"]
+#     else
+#         split(read(expanduser("~/.test_webdav"),String))
+#     end
 
+
+username = "user1"
+password = "user1pw"
+url = "http://localhost:8003"
 
 userinfo = username * ":" * password;
 
