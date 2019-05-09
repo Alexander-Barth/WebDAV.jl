@@ -1,4 +1,4 @@
-# PkgTemplates
+# WebDAV.jl
 
 <!-- [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://alexander-barth.github.io/WebDAV.jl/stable)
 [![Latest](https://img.shields.io/badge/docs-latest-blue.svg)](https://alexander-barth.github.io/WebDAV.jl/latest) -->
