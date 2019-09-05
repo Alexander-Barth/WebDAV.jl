@@ -11,7 +11,7 @@ WebDAV.jl is an experimental WebDAV client for Julia
 
 ```julia
 using Pkg
-Pkg.add("WebDAV")
+Pkg.add(PackageSpec(url="https://github.com/Alexander-Barth/WebDAV.jl",rev="master"))
 ```
 
 ## Usage
