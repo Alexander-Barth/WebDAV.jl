@@ -45,6 +45,4 @@ isfile(s,"foo.txt")
 
 # checks if a directory "dir" exists
 isdir(s,"dir")
-
-
 ```
