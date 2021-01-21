@@ -38,6 +38,7 @@ jobs:
           sudo apt-get install nginx nginx-extras apache2-utils
           htpasswd -bc /tmp/htpasswd  user1 user1pw
           mkdir /tmp/tmpdir /tmp/tmpdir/temp
+          ls /tmp
           nginx -c $PWD/test/nginx-webdav.conf
           sleep 20
           git config --global user.name Tester
