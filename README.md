@@ -2,7 +2,7 @@
 
 <!-- [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://alexander-barth.github.io/WebDAV.jl/stable)
 [![Latest](https://img.shields.io/badge/docs-latest-blue.svg)](https://alexander-barth.github.io/WebDAV.jl/latest) -->
-[![Build Status](https://travis-ci.org/Alexander-Barth/WebDAV.jl.svg?branch=master)](https://travis-ci.org/Alexander-Barth/WebDAV.jl)
+[![Build Status](https://github.com/Alexander-Barth/WebDAV.jl/workflows/CI/badge.svg)](https://github.com/Alexander-Barth/WebDAV.jl/actions)
 [![Codecov](https://codecov.io/gh/Alexander-Barth/WebDAV.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/Alexander-Barth/WebDAV.jl)
 
 WebDAV.jl is an experimental WebDAV client for Julia
@@ -45,6 +45,4 @@ isfile(s,"foo.txt")
 
 # checks if a directory "dir" exists
 isdir(s,"dir")
-
-
 ```

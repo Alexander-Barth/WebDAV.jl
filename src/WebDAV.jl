@@ -93,7 +93,7 @@ function Base.open(f::Function,s::Server,remotepath::AbstractString,
     return nothing
 end
 
-function properties(s,dir)
+function properties(s::Server,dir)
     r = HTTP.request("PROPFIND", s.url * "/" * escape_no_slash(dir), s.headers; status_exception = false);
 
     body = String(r.body)
@@ -105,7 +105,7 @@ function properties(s,dir)
     end
 end
 
-function Base.Filesystem.readdir(s,dir::AbstractString=".")
+function Base.Filesystem.readdir(s::Server,dir::AbstractString=".")
     doc,status = properties(s,dir)
     if status == 404
         error("directory $(dir) not found on server $(s.url)")
@@ -127,7 +127,7 @@ function Base.Filesystem.readdir(s,dir::AbstractString=".")
     return HTTP.unescapeuri.(list)
 end
 
-function Base.Filesystem.mkdir(s,dir::AbstractString)
+function Base.Filesystem.mkdir(s::Server,dir::AbstractString)
     escaped_dir = escape_no_slash(dir)
     if !endswith(dir,"/")
         escaped_dir = escaped_dir * "/"
@@ -142,7 +142,7 @@ end
 
 Removes the `path` on the WebDAV `server`.
 """
-function Base.Filesystem.rm(s,dir::AbstractString)
+function Base.Filesystem.rm(s::Server, dir::AbstractString)
     escaped_dir = escape_no_slash(dir)
     if isdir(s,dir) && !endswith(dir,"/")
         escaped_dir = escaped_dir * "/"
@@ -152,7 +152,7 @@ function Base.Filesystem.rm(s,dir::AbstractString)
     return nothing
 end
 
-function Base.Filesystem.isdir(s,dir::AbstractString)
+function Base.Filesystem.isdir(s::Server, dir::AbstractString)
     doc,status = properties(s,dir)
 
     # not found
@@ -166,7 +166,7 @@ function Base.Filesystem.isdir(s,dir::AbstractString)
 end
 
 
-function Base.Filesystem.isfile(s,dir::AbstractString)
+function Base.Filesystem.isfile(s::Server, dir::AbstractString)
     doc,status = properties(s,dir)
 
     # not found
