@@ -80,6 +80,12 @@ mkdir(s,remote_dirname)
 rm(s,remote_dirname)
 rm(s,remote_fname)
 
-#broken on nginx
-#@test isfile(s,"does_not_exists")
+@test isfile(s,"file_does_not_exists") == false
+@test isdir(s,"dir_does_not_exists") == false
+
+#test errors
+@test_throws Exception open(s, remote_fname,"bogous_mode")
+@test_throws Exception open(io -> nothing, s, remote_fname,"bogous_mode")
+@test_throws Exception readdir(s,"dir_does_not_exists")
+
 end

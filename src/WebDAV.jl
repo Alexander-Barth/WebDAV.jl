@@ -69,8 +69,6 @@ function Base.open(s::Server,remotepath::AbstractString,
     else
         error("unsupported mode $(mode)")
     end
-
-    return nothing
 end
 
 function Base.open(f::Function,s::Server,remotepath::AbstractString,
@@ -97,17 +95,32 @@ function properties(s::Server,dir)
     r = HTTP.request("PROPFIND", s.url * "/" * escape_no_slash(dir), s.headers; status_exception = false);
 
     body = String(r.body)
-    @debug "properties: $body"
+    @debug "properties status: $(r.status)"
+    @debug "properties body: $body"
     if r.status == 404
         return nothing,r.status
     else
-        return EzXML.parsexml(body),r.status
+        doc = EzXML.parsexml(body)
+        return doc,r.status
     end
 end
 
 function Base.Filesystem.readdir(s::Server,dir::AbstractString=".")
     doc,status = properties(s,dir)
+    found = true
+
     if status == 404
+        found = false
+    elseif status == 207
+        # 207 Multi-Status (WebDAV; RFC 4918)
+        status = nodecontent.(findall("/d:multistatus/d:response/d:propstat/d:status",root(doc),namespace))
+
+        if any(contains("404"),status)
+            found = false
+        end
+    end
+
+    if !found
         error("directory $(dir) not found on server $(s.url)")
     end
 
@@ -172,6 +185,13 @@ function Base.Filesystem.isfile(s::Server, dir::AbstractString)
     # not found
     if status == 404
         return false
+    elseif status == 207
+        # 207 Multi-Status (WebDAV; RFC 4918)
+        status = nodecontent.(findall("/d:multistatus/d:response/d:propstat/d:status",root(doc),namespace))
+
+        if any(contains("404"),status)
+            return false
+        end
     end
 
     resourcetype = findall("d:response[1]/d:propstat/d:prop/d:resourcetype/*",root(doc),namespace)
