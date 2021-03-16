@@ -20,6 +20,8 @@ Pkg.add(PackageSpec(url="https://github.com/Alexander-Barth/WebDAV.jl",rev="mast
 The functions `download` and `upload` are used to interact with a WebDAV server.
 
 ```julia
+using WebDAV
+
 username = "user"
 password = "abc123"
 url =  "https://example.com/remote.php/webdav"
