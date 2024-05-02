@@ -15,4 +15,5 @@ pkg> add WebDAV
 
 ```@docs
 WebDAV.Server
+WebDAV.rm
 ```
